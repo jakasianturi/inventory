@@ -1,0 +1,55 @@
+.centered {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.img-profile {
+    height: 2rem !important;
+    width: 2rem !important;
+}
+.sidebar hr.sidebar-divider {
+    border-top: 1px solid rgb(255, 255, 255);
+    margin: 0.5rem;
+}
+.min-vh-75 {
+    min-height: 75vh;
+}
+.object-fit-contain {
+    object-fit: contain !important;
+}
+.brand-img {
+    max-height: 33px;
+    width: auto;
+}
+// Divider
+span.divider {
+    display: flex;
+    width: 100px;
+    height: 4px;
+    border-radius: 50rem;
+}
+// Gap
+@each $breakpoint in map-keys($grid-breakpoints) {
+    @include media-breakpoint-up($breakpoint) {
+        $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+        @each $prop, $abbrev in (gap: gap) {
+            @each $size, $length in $spacers {
+                .#{$abbrev}#{$infix}-#{$size} {
+                    #{$prop}: $length !important;
+                }
+            }
+        }
+    }
+}
+// Text
+.font-weight-semibold {
+    font-weight: 600 !important;
+}
+// Border
+.border-1 {
+    border-width: 2px !important;
+}
+.border-2 {
+    border-width: 4px !important;
+}

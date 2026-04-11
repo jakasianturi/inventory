@@ -1,0 +1,16 @@
+// Fonts
+@import url("https://fonts.googleapis.com/css?family=Nunito");
+
+// Override Variables
+@import "variables";
+// Bootstrap
+@import "bootstrap";
+
+// Admin LTE
+@import "adminlte.scss";
+
+// Vendor
+@import "~izitoast/dist/css/iziToast";
+
+// Custom Style
+@import "custom.scss";

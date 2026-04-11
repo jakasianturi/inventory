@@ -1,0 +1,19 @@
+/*!
+ *   AdminLTE v3.2.0
+ *   Author: Colorlib
+ *   Website: AdminLTE.io <https://adminlte.io>
+ *   License: Open source - MIT <https://opensource.org/licenses/MIT>
+ */
+
+// Variables and Mixins
+// ---------------------------------------------------
+@import "adminlte-variables";
+@import "~admin-lte/build/scss/variables-alt";
+@import "~admin-lte/build/scss/mixins";
+
+@import "~admin-lte/build/scss/parts/core";
+@import "~admin-lte/build/scss/parts/components";
+@import "~admin-lte/build/scss/parts/extra-components";
+@import "~admin-lte/build/scss/parts/pages";
+@import "~admin-lte/build/scss/parts/plugins";
+@import "~admin-lte/build/scss/parts/miscellaneous";

@@ -1,0 +1,32 @@
+// Override Bootstrap default variables here
+
+// Colors
+$blue: #4e73df !default;
+$indigo: #6610f2 !default;
+$purple: #6f42c1 !default;
+$pink: #e83e8c !default;
+$red: #e74a3b !default;
+$orange: #fd7e14 !default;
+$yellow: #f6c23e !default;
+$green: #1cc88a !default;
+$teal: #20c9a6 !default;
+$cyan: #36b9cc !default;
+
+// Admin LTE Color
+$lightblue: #3c8dbc !default;
+$navy: #001f3f !default;
+$olive: #3d9970 !default;
+$lime: #01ff70 !default;
+$fuchsia: #f012be !default;
+$maroon: #d81b60 !default;
+$gray-x-light: #d2d6de !default;
+
+// Bootstrap Color Override
+$primary: $olive !default;
+
+// Body
+$body-bg: #f8fafc;
+$body-color: #333333 !default;
+$font-family-sans-serif: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
