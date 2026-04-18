@@ -26,15 +26,17 @@ class HomeController extends Controller
     {
         // Cek apakah user sudah login
         if (Auth::check()) {
+            return redirect('/dashboard');
+
             // Ambil role user yang sedang login
-            $role = Auth::user()->user_role;
+            $role = Auth::user()->role;
 
             // Redirect berdasarkan role
-            if ($role === 'admin') {
-                return redirect('/admin');
-            } elseif ($role === 'user') {
-                return redirect('/dashboard');
-            }
+            // if ($role === 'admin') {
+            //     return redirect('/admin');
+            // } elseif ($role === 'user') {
+            //     return redirect('/dashboard');
+            // }
         }
 
         // Jika tidak ada login (guest), tampilkan halaman utama atau arahkan ke login

@@ -25,7 +25,7 @@ class User extends Authenticatable
         'phone',
         'address',
         'avatar',
-        'user_role',
+        'role',
         'status',
         'email',
         'password',
@@ -55,7 +55,7 @@ class User extends Authenticatable
      */
     public function hasRole($role)
     {
-        if ($role == $this->user_role) {
+        if ($role == $this->role) {
             return true;
         }
         return false;

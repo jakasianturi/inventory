@@ -11,11 +11,13 @@
     <title>{{ !empty($pengaturan->nama_situs) ? $pengaturan->nama_situs : '' }}</title>
 
     <!-- Favicon -->
-    @if (!empty($pengaturan->favicon) && file_exists(public_path('storage/uploads/' . $pengaturan->favicon)))
-        <link rel="icon" href="{{ asset('storage/uploads/' . $pengaturan->favicon) }}">
-    @else
-        <link rel="icon" href="{{ asset('img/logo.png') }}">
-    @endif
+    @php
+    $faviconPath = asset('img/img.jpg');
+    if (!empty($setting->favicon) && \Illuminate\Support\Facades\Storage::disk('public')->exists($setting->favicon)) {
+        $faviconPath = asset(\Illuminate\Support\Facades\Storage::disk('public')->url($setting->favicon));
+    }
+    @endphp
+    <link rel="icon" href="{{ $faviconPath }}">
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
@@ -33,17 +35,17 @@
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    @if (!empty($pengaturan->logo) && file_exists(public_path('storage/uploads/' . $pengaturan->logo)))
-                        <img class="brand-img d-flex mx-auto object-fit-contain"
-                            src="{{ asset('storage/uploads/' . $pengaturan->logo) }}"
-                            alt="{{ !empty($pengaturan->nama_situs) ? $pengaturan->nama_situs : '' }}"
-                            title="{{ !empty($pengaturan->nama_situs) ? $pengaturan->nama_situs : '' }}">
-                    @else
-                        <img class="brand-img d-flex mx-auto object-fit-contain"
-                            src="{{ asset('img/logo.png') }}"
-                            alt="{{ !empty($pengaturan->nama_situs) ? $pengaturan->nama_situs : '' }}"
-                            title="{{ !empty($pengaturan->nama_situs) ? $pengaturan->nama_situs : '' }}">
-                    @endif
+                    @php
+                    $logoPath = asset('img/img.jpg');
+
+                    if (!empty($setting->logo) && \Illuminate\Support\Facades\Storage::disk('public')->exists($setting->logo)) {
+                        $logoPath = asset(\Illuminate\Support\Facades\Storage::disk('public')->url($setting->logo));
+                    }
+                    @endphp
+                    <img class="brand-img d-flex mx-auto object-fit-contain"
+                        src="{{ $logoPath }}"
+                        alt="{{ !empty($setting->nama_situs) ? $setting->nama_situs : '' }}"
+                        title="{{ !empty($setting->nama_situs) ? $setting->nama_situs : '' }}">
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMenu"
                     aria-controls="navbarMenu" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
@@ -72,7 +74,7 @@
                         @else
                             <li class="nav-item">
                                 <a class="nav-link"
-                                    href="@if (Auth::user()->user_role == 'admin') {{ route('admin.dashboard') }} @elseif(Auth::user()->user_role == 'user') {{ route('dashboard.index') }} @else {{ url('/') }} @endif">Dashboard</a>
+                                    href="@if (Auth::user()->role == 'admin') {{ route('admin.dashboard') }} @elseif(Auth::user()->role == 'user') {{ route('dashboard.index') }} @else {{ url('/') }} @endif">Dashboard</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"

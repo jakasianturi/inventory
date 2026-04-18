@@ -11,11 +11,13 @@
     <title>{{ !empty($setting->site_name) ? $setting->site_name : 'My Website' }}</title>
 
     <!-- Favicon -->
-    @if (!empty($pengaturan->favicon) && file_exists(public_path('storage/uploads/' . $pengaturan->favicon)))
-        <link rel="icon" href="{{ asset('storage/uploads/' . $pengaturan->favicon) }}">
-    @else
-        <link rel="icon" href="{{ asset('img/logo.png') }}">
-    @endif
+    @php
+    $faviconPath = asset('img/img.jpg');
+    if (!empty($setting->favicon) && \Illuminate\Support\Facades\Storage::disk('public')->exists($setting->favicon)) {
+        $faviconPath = asset(\Illuminate\Support\Facades\Storage::disk('public')->url($setting->favicon));
+    }
+    @endphp
+    <link rel="icon" href="{{ $faviconPath }}">
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -27,22 +29,19 @@
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
+@php
+$authBackgroundPath = asset('img/background-auth.jpg');
 
-@if (!empty($pengaturan->auth_background) && file_exists(public_path('storage/uploads/' . $pengaturan->auth_background)))
-    <style>
-        body {
-            background-image: url('{{ asset('storage/uploads/' . $pengaturan->auth_background) }}');
-            background-size: cover;
-        }
-    </style>
-@else
-    <style>
-        body {
-            background-image: url('{{ asset('img/background-auth.jpeg') }}');
-            background-size: cover;
-        }
-    </style>
-@endif
+if (!empty($setting->auth_background) && \Illuminate\Support\Facades\Storage::disk('public')->exists($setting->auth_background)) {
+    $authBackgroundPath = asset(\Illuminate\Support\Facades\Storage::disk('public')->url($setting->auth_background));
+}
+@endphp
+<style>
+    body {
+        background-image: url('{{ $authBackgroundPath }}');
+        background-size: cover;
+    }
+</style>
 
 <body class="hold-transition login-page">
     @yield('content')

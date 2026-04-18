@@ -15,7 +15,7 @@
                     src="{{ $logoPath }}"
                     alt="{{ !empty($setting->nama_situs) ? $setting->nama_situs : '' }}"
                     title="{{ !empty($setting->nama_situs) ? $setting->nama_situs : '' }}"
-                    style="width: 200px; height: 60px;object-fit:contain;">
+                    style="width: 200px; height: 150px;object-fit:contain;">
             </a>
         </div>
         @if (session('register_success'))

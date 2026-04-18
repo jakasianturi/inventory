@@ -95,13 +95,13 @@
                                     <label class="col-form-label col-sm-3 pt-0">Peran</label>
                                     <div class="col-sm-9">
                                         <div class="form-check form-check-inline">
-                                            <input name="user_role" class="form-check-input" type="radio" id="admin"
-                                                value="admin" @if ((old('user_role') ?? ($user->user_role ?? '')) == 'admin') checked @endif>
+                                            <input name="role" class="form-check-input" type="radio" id="admin"
+                                                value="admin" @if ((old('role') ?? ($user->role ?? '')) == 'admin') checked @endif>
                                             <label class="form-check-label" for="admin">Admin</label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input name="user_role" class="form-check-input" type="radio" id="user"
-                                                value="user" @if ((old('user_role') ?? ($user->user_role ?? '')) == 'user') checked @endif>
+                                            <input name="role" class="form-check-input" type="radio" id="user"
+                                                value="user" @if ((old('role') ?? ($user->role ?? '')) == 'user') checked @endif>
                                             <label class="form-check-label" for="user">User</label>
                                         </div>
                                     </div>

@@ -2,22 +2,50 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class ProductController extends Controller
 {
     /**
      * Menampilkan daftar semua produk.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Menggunakan eager loading ('category') untuk mencegah N+1 Query Problem.
-        // total_stock otomatis bisa diakses berkat Accessor di Model.
-        $products = Product::with('category')->latest()->paginate(10);
-        
-        return view('products.index', compact('products'));
+        if ($request->ajax()) {
+            // Ambil data beserta relasinya
+            $data = Product::with('category')->latest();
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                // Menambahkan virtual column untuk total stok (berdasarkan accessor yg kita buat dulu)
+                ->addColumn('total_stock', function($row){
+                    $stock = $row->total_stock;
+                    if($stock < 10) {
+                        return '<span class="text-danger font-weight-bold">'.$stock.'</span>';
+                    }
+                    return '<span class="text-success">'.$stock.'</span>';
+                })
+                // Merakit tombol aksi dinamis berdasarkan Role
+                ->addColumn('action', function($row){
+                    if(auth()->user()->role == 'admin'){
+                        $editUrl = route('dashboard.products.edit', $row->id);
+                        $btn = '<a href="'.$editUrl.'" class="btn btn-warning btn-sm mr-1"><i class="fas fa-edit"></i></a>';
+                        // Class "delete" dan id="$row->id" ini yg ditangkap oleh JQuery AJAX di atas
+                        $btn .= '<button type="button" class="btn btn-danger btn-sm delete" id="'.$row->id.'"><i class="fas fa-trash"></i></button>';
+                        return $btn;
+                    }
+                    // Jika Kasir, tidak ada tombol edit/hapus
+                    return '<span class="badge badge-secondary">Hanya Lihat</span>';
+                })
+                ->rawColumns(['total_stock', 'action']) // Beritahu DataTables agar tag HTML dirender, bukan dijadikan text
+                ->make(true);
+        }
+
+        return view('dashboard.products.index');
     }
 
     /**
@@ -25,10 +53,9 @@ class ProductController extends Controller
      */
     public function create()
     {
-        // Ambil semua kategori untuk diisi ke elemen <select> di Blade
         $categories = Category::all();
-        
-        return view('products.create', compact('categories'));
+        // Cukup lemparkan categories, jangan lemparkan $product agar dianggap "Create"
+        return view('dashboard.products.form', compact('categories'));
     }
 
     /**
@@ -49,7 +76,7 @@ class ProductController extends Controller
 
         Product::create($request->all());
 
-        return redirect()->route('products.index')
+        return redirect()->route('dashboard.products.index')
                          ->with('success', 'Data produk berhasil ditambahkan.');
     }
 
@@ -64,7 +91,7 @@ class ProductController extends Controller
                   ->orderBy('expiration_date', 'asc');
         }]);
 
-        return view('products.show', compact('product'));
+        return view('dashboard.products.show', compact('product'));
     }
 
     /**
@@ -73,8 +100,8 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::all();
-        
-        return view('products.edit', compact('product', 'categories'));
+        // Lemparkan $product agar form mendeteksi ini adalah "Edit" dan mengisi value lama
+        return view('dashboard.products.form', compact('product', 'categories'));
     }
 
     /**
@@ -93,7 +120,7 @@ class ProductController extends Controller
 
         $product->update($request->all());
 
-        return redirect()->route('products.index')
+        return redirect()->route('dashboard.products.index')
                          ->with('success', 'Data produk berhasil diperbarui.');
     }
 
@@ -106,10 +133,10 @@ class ProductController extends Controller
             // Karena kita menggunakan SoftDeletes di Model, data tidak benar-benar hilang dari DB
             $product->delete();
             
-            return redirect()->route('products.index')
+            return redirect()->route('dashboard.products.index')
                              ->with('success', 'Data produk berhasil dihapus.');
         } catch (\Exception $e) {
-            return redirect()->route('products.index')
+            return redirect()->route('dashboard.products.index')
                              ->with('error', 'Gagal menghapus produk. Pastikan produk tidak terkait dengan data lain.');
         }
     }

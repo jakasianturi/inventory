@@ -2,81 +2,135 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Models\ProductBatch;
+use App\Http\Controllers\Controller;
+use App\Exports\StockExport;
+use App\Exports\IncomingExport;
+use App\Exports\OutgoingExport;
+use App\Models\Product;
 use App\Models\Transaction;
-use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
     /**
-     * 1. Laporan Stok dan Kedaluwarsa
-     * Menampilkan semua batch yang masih memiliki stok, diurutkan dari yang paling cepat expired.
+     * Laporan 1: Pantau Stok & Tanggal Kedaluwarsa Terdekat
      */
-    public function stockReport(Request $request)
+    public function stockReport()
     {
-        // Parameter filter opsional: 'all', 'expiring_soon' (misal < 7 hari), 'expired'
-        $filter = $request->query('status', 'all');
+        // Ambil produk beserta relasi batch yang stoknya masih ada
+        // Urutkan batch berdasarkan tanggal expired paling dekat
+        $products = Product::with(['category', 'batches' => function($query) {
+            $query->where('stock_quantity', '>', 0)->orderBy('expiration_date', 'asc');
+        }])->get();
 
-        $query = ProductBatch::with('product.category')
-            ->where('stock_quantity', '>', 0);
-
-        if ($filter == 'expiring_soon') {
-            $query->whereBetween('expiration_date', [Carbon::today(), Carbon::today()->addDays(7)]);
-        } elseif ($filter == 'expired') {
-            $query->where('expiration_date', '<', Carbon::today());
-        }
-
-        // Urutkan dari yang paling mendekati masa kedaluwarsa
-        $batches = $query->orderBy('expiration_date', 'asc')->paginate(20);
-
-        return view('reports.stock', compact('batches', 'filter'));
+        return view('dashboard.reports.stock', compact('products'));
     }
 
     /**
-     * 2. Laporan Barang Masuk
+     * Laporan 2: Riwayat Barang Masuk (Restock)
      */
     public function incomingReport(Request $request)
     {
-        $startDate = $request->query('start_date');
-        $endDate = $request->query('end_date');
+        // Set default filter tanggal: Awal bulan sampai Akhir bulan ini
+        $startDate = $request->start_date ?? Carbon::now()->startOfMonth()->format('Y-m-d');
+        $endDate   = $request->end_date ?? Carbon::now()->endOfMonth()->format('Y-m-d');
 
-        // Mengambil transaksi tipe 'in', load relasi detail, produk, dan user pembuatnya
         $transactions = Transaction::with(['user', 'details.product', 'details.batch'])
             ->where('transaction_type', 'in')
-            // Filter rentang tanggal jika diisi
-            ->when($startDate, function ($query) use ($startDate) {
-                return $query->whereDate('transaction_date', '>=', $startDate);
-            })
-            ->when($endDate, function ($query) use ($endDate) {
-                return $query->whereDate('transaction_date', '<=', $endDate);
-            })
-            ->latest('transaction_date')
-            ->paginate(20);
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->orderBy('transaction_date', 'desc')
+            ->get();
 
-        return view('reports.incoming', compact('transactions', 'startDate', 'endDate'));
+        return view('dashboard.reports.incoming', compact('transactions', 'startDate', 'endDate'));
     }
 
     /**
-     * 3. Laporan Barang Keluar (Penjualan)
+     * Laporan 3: Riwayat Penjualan / Barang Keluar
      */
     public function outgoingReport(Request $request)
     {
-        $startDate = $request->query('start_date');
-        $endDate = $request->query('end_date');
+        $startDate = $request->start_date ?? Carbon::now()->startOfMonth()->format('Y-m-d');
+        $endDate   = $request->end_date ?? Carbon::now()->endOfMonth()->format('Y-m-d');
 
-        // Mengambil transaksi tipe 'out'
         $transactions = Transaction::with(['user', 'details.product', 'details.batch'])
             ->where('transaction_type', 'out')
-            ->when($startDate, function ($query) use ($startDate) {
-                return $query->whereDate('transaction_date', '>=', $startDate);
-            })
-            ->when($endDate, function ($query) use ($endDate) {
-                return $query->whereDate('transaction_date', '<=', $endDate);
-            })
-            ->latest('transaction_date')
-            ->paginate(20);
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->orderBy('transaction_date', 'desc')
+            ->get();
 
-        return view('reports.outgoing', compact('transactions', 'startDate', 'endDate'));
+        return view('dashboard.reports.outgoing', compact('transactions', 'startDate', 'endDate'));
+    }
+
+    // --- FUNGSI EXPORT EXCEL ---
+
+    public function exportStock()
+    {
+        $fileName = 'Laporan_Stok_Susu_' . date('Y-m-d') . '.xlsx';
+        return Excel::download(new StockExport, $fileName);
+    }
+
+    public function exportIncoming(Request $request)
+    {
+        $startDate = $request->start_date ?? Carbon::now()->startOfMonth()->format('Y-m-d');
+        $endDate   = $request->end_date ?? Carbon::now()->endOfMonth()->format('Y-m-d');
+        
+        $fileName = 'Laporan_Barang_Masuk_' . $startDate . '_sd_' . $endDate . '.xlsx';
+        return Excel::download(new IncomingExport($startDate, $endDate), $fileName);
+    }
+
+    public function exportOutgoing(Request $request)
+    {
+        $startDate = $request->start_date ?? Carbon::now()->startOfMonth()->format('Y-m-d');
+        $endDate   = $request->end_date ?? Carbon::now()->endOfMonth()->format('Y-m-d');
+        
+        $fileName = 'Laporan_Penjualan_' . $startDate . '_sd_' . $endDate . '.xlsx';
+        return Excel::download(new OutgoingExport($startDate, $endDate), $fileName);
+    }
+
+    public function exportStockPdf()
+    {
+        $products = Product::with(['category', 'batches' => function($query) {
+            $query->where('stock_quantity', '>', 0)->orderBy('expiration_date', 'asc');
+        }])->get();
+
+        $pdf = Pdf::loadView('dashboard.reports.pdf_stock', compact('products'))
+                ->setPaper('a4', 'landscape');
+
+        return $pdf->download('Laporan_Stok_' . date('Y-m-d') . '.pdf');
+    }
+
+    public function exportIncomingPdf(Request $request)
+    {
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
+
+        $transactions = Transaction::with(['user', 'details.product', 'details.batch'])
+            ->where('transaction_type', 'in')
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->get();
+
+        $pdf = Pdf::loadView('dashboard.reports.pdf_incoming', compact('transactions', 'startDate', 'endDate'))
+                ->setPaper('a4', 'landscape');
+
+        return $pdf->download('Laporan_Barang_Masuk_' . $startDate . '.pdf');
+    }
+
+    public function exportOutgoingPdf(Request $request)
+    {
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
+
+        $transactions = Transaction::with(['user', 'details.product', 'details.batch'])
+            ->where('transaction_type', 'out')
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->get();
+
+        $pdf = Pdf::loadView('dashboard.reports.pdf_outgoing', compact('transactions', 'startDate', 'endDate'))
+                ->setPaper('a4', 'landscape');
+
+        return $pdf->download('Laporan_Penjualan_' . $startDate . '.pdf');
     }
 }

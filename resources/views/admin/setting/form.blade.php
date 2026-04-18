@@ -119,7 +119,7 @@
                             <label class="col-sm-3 col-form-label">Backgound Auth</label>
                             <div class="col-sm-4">
                                 @php
-                                $authBackgroundPath = asset('img/background-auth.jpeg');
+                                $authBackgroundPath = asset('img/background-auth.jpg');
 
                                 if (!empty($setting->auth_background) && \Illuminate\Support\Facades\Storage::disk('public')->exists($setting->auth_background)) {
                                     $authBackgroundPath = asset(\Illuminate\Support\Facades\Storage::disk('public')->url($setting->auth_background));

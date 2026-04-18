@@ -1,112 +1,95 @@
 <?php
 
 use Illuminate\Support\Facades\Auth;
-use UniSharp\LaravelFilemanager\Lfm;
 use Illuminate\Support\Facades\Route;
+use UniSharp\LaravelFilemanager\Lfm;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
-// Route for Drive Proxy
+// Route for Drive Proxy & Home
 Route::get('/proxy-drive-image/{id}', [\App\Http\Controllers\DriveProxyController::class, 'show']);
-
-/**
- * Route for public
- */
-// Home
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-// Route::get('/html', function () {
-//     $hasil_seleksi = Seleksi::where('id', 1)->latest()->first();
-//     return view('dashboard.hasil_seleksi.export',  compact('hasil_seleksi'));
-// });
-
-/**
- * Route for Auth
- * Registration not aviable for this website
- */
 Auth::routes(['verify' => false]);
 
-// Laravel Filemanager
+// Laravel Filemanager (Khusus Admin)
 Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['role:admin', 'auth']], function () {
     Lfm::routes();
 });
 
-/**
- * Route for Admin
- */
+/*
+|--------------------------------------------------------------------------
+| AREA ADMIN KHUSUS (Pengaturan Sistem & User)
+|--------------------------------------------------------------------------
+*/
 Route::group(['prefix' => 'admin', 'middleware' => ['role:admin', 'auth']], function () {
     Route::name('admin.')->group(function () {
-        // Dashboard
         Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
-        // Siswa
-        Route::resource('/users', App\Http\Controllers\Admin\UserController::class)
-            ->except(['show']);
-        // Pengaturan Website
+        Route::resource('/users', App\Http\Controllers\Admin\UserController::class)->except(['show']);
+        
         Route::get('/settings', [App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
         Route::put('/settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
-        // Profil Admin
+        
         Route::get('/profiles', [App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('profiles.index');
         Route::put('/profiles', [App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profiles.update');
     });
 });
 
-/**
- * Route for User
- */
-Route::group(['prefix' => 'dashboard', 'middleware' => ['role:user', 'auth']], function () {
-    Route::name('dashboard.')->group(function () {
-        // Dashboard
-        Route::get('/', [App\Http\Controllers\Dashboard\DashboardController::class, 'index'])->name('index');
-        // Profile User
-        Route::get('/profiles', [App\Http\Controllers\Dashboard\ProfileController::class, 'index'])->name('profiles.index');
-        Route::put('/profiles', [App\Http\Controllers\Dashboard\ProfileController::class, 'update'])->name('profiles.update');
-        // Transaction
-        Route::post('/transaction/in', [App\Http\Controllers\Dashboard\TransactionController::class, 'storeIn'])->name('transaction.storeIn');
-        Route::post('/transaction/out', [App\Http\Controllers\Dashboard\TransactionController::class, 'storeOut'])->name('transaction.storeOut');
-        // Product
-        Route::prefix('products')->name('products.')->group(function () {
-            Route::get('/', [App\Http\Controllers\Dashboard\ProductController::class, 'index'])->name('index');
-            Route::get('/create', [App\Http\Controllers\Dashboard\ProductController::class, 'create'])->name('create');
-            Route::post('/', [App\Http\Controllers\Dashboard\ProductController::class, 'store'])->name('store');
-            Route::get('/{product}', [App\Http\Controllers\Dashboard\ProductController::class, 'show'])->name('show');
-            Route::get('/{product}/edit', [App\Http\Controllers\Dashboard\ProductController::class, 'edit'])->name('edit');
-            Route::put('/{product}', [App\Http\Controllers\Dashboard\ProductController::class, 'update'])->name('update');
-            Route::delete('/{product}', [App\Http\Controllers\Dashboard\ProductController::class, 'destroy'])->name('destroy');
-        });
-        // Product Batch
-        Route::prefix('batches')->name('batches.')->group(function () {
-            Route::get('/', [App\Http\Controllers\Dashboard\ProductBatchController::class, 'index'])->name('index');
-            Route::get('/create', [App\Http\Controllers\Dashboard\ProductBatchController::class, 'create'])->name('create');
-            Route::post('/', [App\Http\Controllers\Dashboard\ProductBatchController::class, 'store'])->name('store');
-            Route::get('/{batch}', [App\Http\Controllers\Dashboard\ProductBatchController::class, 'show'])->name('show');
-            Route::get('/{batch}/edit', [App\Http\Controllers\Dashboard\ProductBatchController::class, 'edit'])->name('edit');
-            Route::put('/{batch}', [App\Http\Controllers\Dashboard\ProductBatchController::class, 'update'])->name('update');
-            Route::delete('/{batch}', [App\Http\Controllers\Dashboard\ProductBatchController::class, 'destroy'])->name('destroy');
-        });
-        // Category
-        Route::prefix('categories')->name('categories.')->group(function () {
-            Route::get('/', [App\Http\Controllers\Dashboard\CategoryController::class, 'index'])->name('index');
-            Route::get('/create', [App\Http\Controllers\Dashboard\CategoryController::class, 'create'])->name('categories.create');
-            Route::post('/', [App\Http\Controllers\Dashboard\CategoryController::class, 'store'])->name('categories.store');
-            Route::get('/{category}', [App\Http\Controllers\Dashboard\CategoryController::class, 'show'])->name('categories.show');
-            Route::get('/{category}/edit', [App\Http\Controllers\Dashboard\CategoryController::class, 'edit'])->name('categories.edit');
-            Route::put('/{category}', [App\Http\Controllers\Dashboard\CategoryController::class, 'update'])->name('categories.update');
-            Route::delete('/{category}', [App\Http\Controllers\Dashboard\CategoryController::class, 'destroy'])->name('categories.destroy');
-        });
-        // Report
-        Route::prefix('reports')->name('reports.')->group(function () {
-            Route::get('/stock', [App\Http\Controllers\Dashboard\ReportController::class, 'stockReport'])->name('stock');
+/*
+|--------------------------------------------------------------------------
+| AREA SHARED & OPERASIONAL (Bisa diakses Admin & Kasir)
+| Keterangan: Kasir biasanya memiliki role 'user'
+|--------------------------------------------------------------------------
+*/
+Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
+    
+    // Dashboard & Profil Kasir (Gunakan controller yang ada)
+    Route::get('/', [App\Http\Controllers\Dashboard\DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/profiles', [App\Http\Controllers\Dashboard\ProfileController::class, 'index'])->name('dashboard.profiles.index');
+    Route::put('/profiles', [App\Http\Controllers\Dashboard\ProfileController::class, 'update'])->name('dashboard.profiles.update');
+
+    // 1. TRANSAKSI
+    // Kasir HANYA bisa jualan (out). Admin bisa dua-duanya (in & out).
+    Route::get('/transaction/out', [App\Http\Controllers\Dashboard\TransactionController::class, 'createOut'])->name('dashboard.transaction.createOut');
+    Route::post('/transaction/out', [App\Http\Controllers\Dashboard\TransactionController::class, 'storeOut'])->name('dashboard.transaction.storeOut');
+    
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/transaction/in', [App\Http\Controllers\Dashboard\TransactionController::class, 'createIn'])->name('dashboard.transaction.createIn');
+        Route::post('/transaction/in', [App\Http\Controllers\Dashboard\TransactionController::class, 'storeIn'])->name('dashboard.transaction.storeIn');
+    });
+
+    // 2. MASTER DATA (KATEGORI & PRODUK)
+    // HANYA Admin yang bisa modifikasi (create, store, edit, update, destroy)
+    Route::middleware(['role:admin'])->group(function () {
+        Route::resource('categories', App\Http\Controllers\Dashboard\CategoryController::class)->except(['index', 'show'])->names('dashboard.categories');
+        Route::resource('products', App\Http\Controllers\Dashboard\ProductController::class)->except(['index', 'show'])->names('dashboard.products');
+    });
+    // Semua role bisa melihat (index, show)
+    Route::resource('categories', App\Http\Controllers\Dashboard\CategoryController::class)->only(['index', 'show'])->names('dashboard.categories');
+    Route::resource('products', App\Http\Controllers\Dashboard\ProductController::class)->only(['index', 'show'])->names('dashboard.products');
+    
+
+    // 3. PRODUCT BATCHES (Stock Opname / Pemusnahan)
+    // HANYA Admin yang boleh melakukan penyesuaian stok
+    Route::middleware(['role:admin'])->group(function () {
+        Route::resource('batches', App\Http\Controllers\Dashboard\ProductBatchController::class)->names('dashboard.batches');
+    });
+
+    // 4. LAPORAN (REPORTS)
+    Route::prefix('reports')->name('dashboard.reports.')->group(function () {
+        
+        // Laporan Stok (Bisa dilihat Kasir)
+        Route::get('/stock', [App\Http\Controllers\Dashboard\ReportController::class, 'stockReport'])->name('stock');
+        Route::get('/stock/export', [App\Http\Controllers\Dashboard\ReportController::class, 'exportStock'])->name('exportStock');
+        Route::get('/stock/pdf', [App\Http\Controllers\Dashboard\ReportController::class, 'exportStockPdf'])->name('exportStockPdf');
+        
+        // Laporan Transaksi (Khusus Admin)
+        Route::middleware(['role:admin'])->group(function () {
             Route::get('/incoming', [App\Http\Controllers\Dashboard\ReportController::class, 'incomingReport'])->name('incoming');
+            Route::get('/incoming/export', [App\Http\Controllers\Dashboard\ReportController::class, 'exportIncoming'])->name('exportIncoming');
+            Route::get('/incoming/pdf', [App\Http\Controllers\Dashboard\ReportController::class, 'exportIncomingPdf'])->name('exportIncomingPdf');
+            
             Route::get('/outgoing', [App\Http\Controllers\Dashboard\ReportController::class, 'outgoingReport'])->name('outgoing');
+            Route::get('/outgoing/export', [App\Http\Controllers\Dashboard\ReportController::class, 'exportOutgoing'])->name('exportOutgoing');
+            Route::get('/outgoing/pdf', [App\Http\Controllers\Dashboard\ReportController::class, 'exportOutgoingPdf'])->name('exportOutgoingPdf');
         });
     });
 });

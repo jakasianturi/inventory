@@ -22,7 +22,7 @@ class SetupSeeder extends Seeder
                 'name' => 'Administrator',
                 'email_verified_at' => now(),
                 'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-                'user_role' => 'admin',
+                'role' => 'admin',
                 'status' => 'active',
             ] // Data yang di-insert / di-update
         );
@@ -34,7 +34,7 @@ class SetupSeeder extends Seeder
                 'name' => 'Karyawan',
                 'email_verified_at' => now(),
                 'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-                'user_role' => 'user',
+                'role' => 'user',
                 'status' => 'active',
             ]
         );

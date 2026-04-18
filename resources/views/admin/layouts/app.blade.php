@@ -49,7 +49,7 @@
                             class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{ route('home') }}" class="nav-link">Beranda</a>
+                    <a href="{{ route('home') }}" class="nav-link">Inventory</a>
                 </li>
             </ul>
             <ul class="navbar-nav ml-auto align-items-center">
@@ -73,7 +73,8 @@
                 <img class="brand-img d-flex mx-auto object-fit-contain"
                     src="{{ $logoPath }}"
                     alt="{{ !empty($setting->nama_situs) ? $setting->nama_situs : '' }}"
-                    title="{{ !empty($setting->nama_situs) ? $setting->nama_situs : '' }}">
+                    title="{{ !empty($setting->nama_situs) ? $setting->nama_situs : '' }}"
+                    style="max-height: 40px;">
             </a>
             <div class="sidebar">
                 <div class="user-panel border-bottom mt-3 pb-3 mb-3 d-flex align-items-center">

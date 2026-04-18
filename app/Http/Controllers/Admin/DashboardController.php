@@ -27,7 +27,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $user_total = User::where('user_role', 'user')->count();
+        $user_total = User::where('role', 'user')->count();
         return view('admin.dashboard.welcome', compact('user_total'));
     }
 }

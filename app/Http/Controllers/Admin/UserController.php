@@ -31,7 +31,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $users = User::whereNotIn('user_role', ['admin'])->get();
+        $users = User::whereNotIn('role', ['admin'])->get();
        if($request->ajax()){
         return DataTables::of($users)
                         ->addColumn('action', function($data){
@@ -72,7 +72,7 @@ class UserController extends Controller
             'name'       => 'required',
             'email'      => 'required|email|unique:App\Models\User,email,',
             'gender'     => 'required',
-            'user_role'  => 'required',
+            'role'  => 'required',
             'status'     => 'required',
             'password'   => 'required|min:8|confirmed',
         ],
@@ -82,7 +82,7 @@ class UserController extends Controller
             'email.email'           => 'Alamat Email tidak valid.',
             'email.unique'          => 'Alamat Email sudah digunakan.',
             'gender.required'       => 'Jenis Kelamin tidak boleh kosong.',
-            'user_role.required'    => 'Peran tidak boleh kosong.',
+            'role.required'    => 'Peran tidak boleh kosong.',
             'status.required'       => 'Status tidak boleh kosong.',
             'password.required'     => 'Password tidak boleh kosong.',
             'password.min'          => 'Panjang password harus lebih dari 8 karakter.',
@@ -100,7 +100,7 @@ class UserController extends Controller
                 'name'       => $request->input('name'),
                 'email'       => $request->input('email'),
                 'gender'       => $request->input('gender'),
-                'user_role'       => $request->input('user_role'),
+                'role'       => $request->input('role'),
                 'status'       => $request->input('status'),
                 'password'       => Hash::make($request->input('password')),
             ]);
@@ -130,7 +130,7 @@ class UserController extends Controller
      */
     public function edit($user)
     {
-        $user = User::where('id', $user)->where('user_role', 'user')->firstOrFail();
+        $user = User::where('id', $user)->where('role', 'user')->firstOrFail();
         return view('admin.user.form', [
             'user'   => $user,
             'url'         => 'admin.users.update',
@@ -151,7 +151,7 @@ class UserController extends Controller
             'name'       => 'required',
             'email'      => 'required|email|unique:App\Models\User,email,'.$user->id,
             'gender'     => 'required',
-            'user_role'  => 'required',
+            'role'  => 'required',
             'password'   => 'nullable|min:8|confirmed',
         ],
         [
@@ -160,7 +160,7 @@ class UserController extends Controller
             'email.email'           => 'Alamat Email tidak valid.',
             'email.unique'          => 'Alamat Email sudah digunakan.',
             'gender.required'       => 'Jenis Kelamin tidak boleh kosong.',
-            'user_role.required'    => 'Peran tidak boleh kosong.',
+            'role.required'    => 'Peran tidak boleh kosong.',
             'password.min'          => 'Panjang password harus lebih dari 8 karakter.',
             'password.confirmed'    => 'Konfirmasi password tidak sesuai.',
         ],
@@ -184,7 +184,7 @@ class UserController extends Controller
                 'name'       => $request->input('name'),
                 'email'       => $request->input('email'),
                 'gender'       => $request->input('gender'),
-                'user_role'       => $request->input('user_role'),
+                'role'       => $request->input('role'),
                 'status'       => $request->input('status'),
                 'password'       => $password,
             ]);
@@ -205,7 +205,7 @@ class UserController extends Controller
     {
         $result = ['status' => 200];
         try {
-            $result['data'] = User::where('id', $user)->where('user_role', 'user')->delete();
+            $result['data'] = User::where('id', $user)->where('role', 'user')->delete();
         } catch (Exception $e) {
             $result = [
                 'status' => 500,
