@@ -19,7 +19,7 @@ class SetupSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'admin@gmail.com'], // Parameter pencarian
             [
-                'name' => 'Administrator',
+                'name' => 'Admin Inventory',
                 'email_verified_at' => now(),
                 'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
                 'role' => 'admin',
@@ -29,9 +29,9 @@ class SetupSeeder extends Seeder
 
         // Mencari user berdasarkan email 'karyawan@gmail.com'
         User::updateOrCreate(
-            ['email' => 'karyawan@gmail.com'],
+            ['email' => 'kasir@gmail.com'],
             [
-                'name' => 'Karyawan',
+                'name' => 'Kasir Inventory',
                 'email_verified_at' => now(),
                 'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
                 'role' => 'user',
