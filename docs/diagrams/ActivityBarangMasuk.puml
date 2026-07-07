@@ -1,0 +1,23 @@
+@startuml ActivityBarangMasuk
+|Admin|
+start
+:Pilih Menu Transaksi Masuk;
+:Isi Form (Pilih Barang, Input Qty, \nNo. Batch, Tanggal Kedaluwarsa);
+:Klik Simpan;
+
+|Sistem|
+if (Validasi Input Form?) then (Gagal)
+  :Tampilkan Pesan Error Validasi;
+  |Admin|
+  :Perbaiki Inputan Form;
+  detach
+else (Berhasil)
+  |Sistem|
+  :Mulai Transaksi Database\n(DB Transaction);
+  :Simpan Data ke Tabel 'transactions' (Header);
+  :Buat Record Baru di Tabel 'product_batches';
+  :Simpan Data ke Tabel 'transaction_details';
+  :Tampilkan Notifikasi "Transaksi Berhasil";
+endif
+stop
+@enduml

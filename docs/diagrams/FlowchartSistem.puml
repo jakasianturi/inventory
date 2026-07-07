@@ -1,0 +1,28 @@
+@startuml FlowchartSistem
+start
+repeat :Tampil Halaman Login;
+  :Input Username & Password;
+  backward:Tampilkan Pesan Error;
+repeat while (Validasi Kredensial Valid?) is (Tidak Valid)
+-> Valid;
+
+if (Cek Hak Akses / Role User) then (Admin)
+  :Arahkan ke Dashboard Admin;
+  :Pilih Menu:
+  - Master Data
+  - Transaksi Masuk
+  - Transaksi Keluar
+  - Penyesuaian Stok
+  - Laporan Lengkap;
+else (Kasir)
+  :Arahkan ke Dashboard Kasir;
+  :Pilih Menu:
+  - Transaksi Keluar
+  - Laporan Stok;
+endif
+
+:Proses Database (Query / Update);
+:Tampilkan Halaman & Notifikasi;
+:Klik Logout;
+stop
+@enduml

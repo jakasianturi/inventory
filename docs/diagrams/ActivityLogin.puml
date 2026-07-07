@@ -1,0 +1,28 @@
+@startuml ActivityLogin
+|Aktor (Admin/Kasir)|
+start
+:Buka Aplikasi Web;
+
+|Sistem|
+:Tampilkan Halaman Login;
+
+|Aktor (Admin/Kasir)|
+:Input Username & Password;
+:Klik Tombol Login;
+
+|Sistem|
+if (Validasi Database (users)?) then (Tidak Valid)
+  :Tampilkan Pesan Error\n"Username/Password Salah";
+  |Aktor (Admin/Kasir)|
+  :Kembali ke Form Login;
+  detach
+else (Valid)
+  |Sistem|
+  if (Cek Role User?) then (Admin)
+    :Arahkan ke Dashboard Admin;
+  else (Kasir)
+    :Arahkan ke Dashboard Kasir;
+  endif
+endif
+stop
+@enduml

@@ -108,8 +108,13 @@ class TransactionController extends Controller
 
         try {
             DB::transaction(function () use ($request) {
-                // ... (Kode logika DB::transaction, Validasi Stok, dan FIFO tetap sama persis seperti yang Anda buat) ...
-                
+                // 1. Buat Header Transaksi
+                $transaction = Transaction::create([
+                    'user_id'          => Auth::id() ?? 1,
+                    'transaction_type' => 'out',
+                    'transaction_date' => $request->transaction_date,
+                    'notes'            => $request->notes,
+                ]);
                 // Array untuk mengumpulkan jumlah yang diminta per produk jika 
                 // ada kasir yang menginput produk yang sama di 2 baris berbeda
                 $requestedQuantities = [];

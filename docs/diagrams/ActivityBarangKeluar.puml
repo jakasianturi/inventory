@@ -1,0 +1,35 @@
+@startuml ActivityBarangKeluar
+|Kasir / Admin|
+start
+:Pilih Menu Transaksi Keluar;
+:Pilih Barang & Input Qty Kebutuhan;
+:Klik Simpan;
+
+|Sistem|
+if (Cek Total Stok Tersedia) then (Qty Kebutuhan > Total Stok)
+  :Batalkan Transaksi;
+  :Tampilkan Error "Stok Kurang";
+  |Kasir / Admin|
+  :Ubah Qty Kebutuhan;
+  detach
+else (Qty <= Total Stok)
+  |Sistem|
+  repeat :Cari Batch dengan Tanggal\nKedaluwarsa Paling Awal (FIFO);
+    if (Stok Batch Terpilih >= Qty Kebutuhan?) then (Ya)
+      :Kurangi Stok di Batch Tersebut;
+      :Simpan Record ke transaction_details;
+      :Qty Kebutuhan = 0;
+    else (Tidak)
+      :Ambil Seluruh Sisa Stok Batch;
+      :Simpan Record ke transaction_details;
+      :Kurangi Qty Kebutuhan dengan Sisa Stok;
+      :Update Stok Batch Tersebut = 0;
+    endif
+  repeat while (Qty Kebutuhan > 0?) is (Ya)
+  -> Tidak (Semua Terpenuhi);
+  
+  :Commit Transaksi Database;
+  :Tampilkan Notifikasi Sukses;
+endif
+stop
+@enduml

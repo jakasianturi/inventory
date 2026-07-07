@@ -1,0 +1,120 @@
+Table "personal_access_tokens" {
+  "id" bigint [pk, not null, increment]
+  "tokenable_type" varchar(191) [not null]
+  "tokenable_id" bigint [not null]
+  "name" varchar(191) [not null]
+  "token" varchar(64) [not null]
+  "abilities" text [default: NULL]
+  "last_used_at" timestamp [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+}
+
+Table "password_resets" {
+  "email" varchar(191) [not null]
+  "token" varchar(191) [not null]
+  "created_at" timestamp [default: NULL]
+}
+
+Table "migrations" {
+  "id" int [pk, not null, increment]
+  "migration" varchar(191) [not null]
+  "batch" int [not null]
+}
+
+Table "transactions" {
+  "id" bigint [pk, not null, increment]
+  "user_id" bigint [not null, ref: > "users"."id"]
+  "transaction_type" text [not null]
+  "transaction_date" datetime [not null]
+  "notes" text [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+  "deleted_at" timestamp [default: NULL]
+}
+
+Table "product_batches" {
+  "id" bigint [pk, not null, increment]
+  "product_id" bigint [not null, ref: > "products"."id"]
+  "batch_number" varchar(191) [not null]
+  "stock_quantity" int [not null]
+  "production_date" date [default: NULL]
+  "expiration_date" date [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+  "deleted_at" timestamp [default: NULL]
+}
+
+Table "transaction_details" {
+  "id" bigint [pk, not null, increment]
+  "transaction_id" bigint [not null, ref: > "transactions"."id"]
+  "product_id" bigint [not null, ref: > "products"."id"]
+  "batch_id" bigint [not null, ref: > "product_batches"."id"]
+  "quantity" int [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+  "deleted_at" timestamp [default: NULL]
+}
+
+Table "failed_jobs" {
+  "id" bigint [pk, not null, increment]
+  "uuid" varchar(191) [not null]
+  "connection" text [not null]
+  "queue" text [not null]
+  "payload" text [not null]
+  "exception" text [not null]
+  "failed_at" timestamp [not null, default: `CURRENT_TIMESTAMP()`]
+}
+
+Table "products" {
+  "id" bigint [pk, not null, increment]
+  "category_id" bigint [not null, ref: > "categories"."id"]
+  "sku_code" varchar(191) [not null]
+  "name" varchar(191) [not null]
+  "description" text [default: NULL]
+  "base_price" decimal [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+  "deleted_at" timestamp [default: NULL]
+}
+
+Table "categories" {
+  "id" bigint [pk, not null, increment]
+  "name" varchar(191) [not null]
+  "description" text [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+  "deleted_at" timestamp [default: NULL]
+}
+
+Table "users" {
+  "id" bigint [pk, not null, increment]
+  "name" varchar(191) [not null]
+  "gender" text [default: 'L']
+  "phone" varchar(191) [default: NULL]
+  "address" varchar(191) [default: NULL]
+  "avatar" varchar(191) [default: NULL]
+  "email" varchar(191) [not null]
+  "email_verified_at" timestamp [default: NULL]
+  "password" varchar(191) [not null]
+  "role" text [default: 'user']
+  "status" text [default: 'active']
+  "remember_token" varchar(100) [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+  "deleted_at" timestamp [default: NULL]
+}
+
+Table "settings" {
+  "id" bigint [pk, not null, increment]
+  "nama_situs" varchar(191) [default: NULL]
+  "logo" varchar(191) [default: NULL]
+  "favicon" varchar(191) [default: NULL]
+  "auth_background" varchar(191) [default: NULL]
+  "email" varchar(191) [default: NULL]
+  "telepon" varchar(191) [default: NULL]
+  "alamat" text [default: NULL]
+  "footer_teks" varchar(191) [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+}

@@ -1,0 +1,32 @@
+@startuml UseCaseDiagram
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Admin" as admin
+actor "Kasir / User" as kasir
+
+rectangle "Sistem Persediaan Stok Barang" {
+    usecase "UC-01: Login" as UC1
+    usecase "UC-02: Kelola Data User" as UC2
+    usecase "UC-03: Kelola Master Data\n(Kategori & Produk)" as UC3
+    usecase "UC-04: Transaksi Barang Masuk\n(Restock)" as UC4
+    usecase "UC-05: Transaksi Barang Keluar\n(Penjualan)" as UC5
+    usecase "UC-06: Penyesuaian Stok\n(Stock Opname / Pemusnahan)" as UC6
+    usecase "UC-07: Akses Laporan\n(Stok, Masuk, Keluar)" as UC7
+    usecase "UC-08: Logout" as UC8
+}
+
+admin --> UC1
+admin --> UC2
+admin --> UC3
+admin --> UC4
+admin --> UC5
+admin --> UC6
+admin --> UC7
+admin --> UC8
+
+kasir --> UC1
+kasir --> UC5
+kasir --> UC7
+kasir --> UC8
+@enduml
